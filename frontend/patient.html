@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraCare — Intelligent Patient Intake</title>
+  <meta name="description" content="AI-assisted patient intake & smart triage. Describe your symptoms naturally in your language." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fff6dc;
+      --bg-gradient: linear-gradient(135deg, #fff6dc 0%, #fffaea 35%, #fef3c7 100%);
+      --surface: #ffffff;
+      --surface-warm: #fef9e7;
+      
+      --cream-base: #fff6dc;
+      --cream-border: #ebd99f;
+      --cream-border-subtle: #f4e8be;
+      
+      --amber-primary: #d97706;
+      --amber-dark: #b45309;
+      --amber-vibrant: #f59e0b;
+      --amber-light: #fef3c7;
+      
+      --rose-primary: #e11d48;
+      --rose-light: #ffe4e6;
+      --rose-border: #fecdd3;
+      
+      --mint-primary: #059669;
+      --mint-light: #ecfdf5;
+      --mint-border: #a7f3d0;
+
+      --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --gradient-hero: linear-gradient(135deg, #d97706 0%, #b45309 60%, #e11d48 100%);
+      
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-light: #64748b;
+      
+      --shadow-cream: 0 10px 30px -5px rgba(217, 119, 6, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      --shadow-lg: 0 20px 45px -10px rgba(217, 119, 6, 0.16);
+      
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-attachment: fixed;
+      transition: font-size 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body.large-text-mode { font-size: 1.15rem; }
+    body.large-text-mode .msg-bubble { font-size: 1.25rem !important; line-height: 1.65 !important; }
+    body.large-text-mode input, body.large-text-mode textarea, body.large-text-mode select, body.large-text-mode button {
+      font-size: 1.1rem !important;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; flex-direction: column; min-height: 100vh; position: relative; }
+    .screen.active { display: flex; animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── WELCOME & LOGIN SCREEN ── */
+    #screen-login {
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      min-height: 100vh;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 2.75rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 6px;
+      background: var(--gradient-amber);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 1.8rem;
+    }
+    .logo-icon {
+      width: 50px; height: 50px;
+      background: var(--gradient-amber);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.3);
+    }
+    .logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .logo-sub {
+      font-size: 0.76rem;
+      color: var(--amber-dark);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 1px;
+    }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      margin-bottom: 1.85rem;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 1.35rem; }
+
+    .field-error {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--rose-primary);
+      margin-top: 6px;
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+    .field-error.visible { display: flex; }
+    .input-invalid {
+      border-color: var(--rose-primary) !important;
+      background: #fff0f2 !important;
+      box-shadow: 0 0 0 3.5px rgba(225, 29, 72, 0.12) !important;
+    }
+    .input-valid {
+      border-color: var(--mint-primary) !important;
+      box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.12) !important;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      padding: 0.88rem 1.2rem;
+      font-size: 0.98rem;
+      font-weight: 500;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    input:focus, select:focus {
+      border-color: var(--amber-primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3.5px rgba(217, 119, 6, 0.15);
+    }
+    input::placeholder { color: #94a3b8; }
+    select option { background: #ffffff; color: var(--text-main); }
+
+    .lang-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .lang-btn {
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .lang-btn:hover {
+      border-color: var(--amber-primary);
+      color: #fff;
+      background: var(--amber-primary);
+      transform: translateY(-2px);
+    }
+    .lang-btn.selected {
+      border-color: var(--amber-dark);
+      background: var(--gradient-amber);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1.02rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: var(--gradient-amber);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(217, 119, 6, 0.45);
+    }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .divider {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.82rem;
+      margin: 1.35rem 0;
+      position: relative;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%; width: 35%; height: 1.5px;
+      background: var(--cream-border);
+    }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    /* ── CHAT SCREEN ── */
+    #screen-chat {
+      background: var(--bg-gradient);
+      flex: 1;
+      flex-direction: column;
+    }
+    #screen-chat.active {
+      display: flex;
+    }
+
+    .chat-header {
+      background: rgba(255, 246, 220, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 2px solid var(--cream-border);
+      padding: 1rem 2.25rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.05);
+    }
+    .chat-avatar-top {
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background: var(--gradient-amber);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+      flex-shrink: 0;
+    }
+    .chat-header-info h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .chat-header-info p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    .chat-header-info p::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--mint-primary);
+      display: inline-block;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    }
+
+    .header-tools {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-tool {
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-tool:hover {
+      background: var(--amber-light);
+      transform: translateY(-1px);
+    }
+    .btn-tool.btn-logout {
+      border-color: var(--rose-border);
+      color: var(--rose-primary);
+    }
+    .btn-tool.btn-logout:hover {
+      background: var(--rose-light);
+      border-color: var(--rose-primary);
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.15);
+    }
+
+    .step-badge {
+      background: #ffffff;
+      color: var(--amber-dark);
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-full);
+      padding: 6px 18px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 2.25rem 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+      max-width: 840px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .msg {
+      display: flex;
+      gap: 12px;
+      animation: msgSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes msgSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-avatar {
+      width: 42px; height: 42px; border-radius: 14px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .msg.assistant .msg-avatar {
+      background: var(--gradient-amber);
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+      color: #fff;
+    }
+    .msg.patient { flex-direction: row-reverse; }
+    .msg.patient .msg-avatar {
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+    }
+
+    .msg-bubble {
+      max-width: 78%;
+      padding: 1.05rem 1.4rem;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      line-height: 1.65;
+      font-weight: 500;
+      box-shadow: var(--shadow-cream);
+    }
+    .msg.assistant .msg-bubble {
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-top-left-radius: 4px;
+      color: var(--text-main);
+      position: relative;
+    }
+    .msg.assistant .msg-bubble::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: 0; width: 4px;
+      background: var(--gradient-amber);
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.patient .msg-bubble {
+      background: var(--gradient-amber);
+      color: #ffffff;
+      border-top-right-radius: 4px;
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+    }
+
+    .typing-indicator {
+      display: flex; gap: 6px; align-items: center; padding: 0.95rem 1.35rem;
+      background: #ffffff; border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-md); border-top-left-radius: 4px;
+      width: fit-content;
+      box-shadow: var(--shadow-cream);
+    }
+    .typing-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--amber-primary);
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; background: var(--amber-vibrant); }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; background: var(--amber-dark); }
+    @keyframes bounce {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1.2) translateY(-3px); }
+    }
+
+    .chat-input-area {
+      background: rgba(255, 246, 220, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 2px solid var(--cream-border);
+      padding: 1.25rem 2.25rem;
+      position: sticky;
+      bottom: 0;
+      z-index: 20;
+      box-shadow: 0 -4px 20px rgba(217, 119, 6, 0.05);
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 12px;
+      max-width: 840px;
+      margin: 0 auto;
+      align-items: flex-end;
+    }
+    .chat-input-wrap { flex: 1; position: relative; }
+    #chat-input {
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      color: var(--text-main);
+      border-radius: var(--radius-md);
+      padding: 0.92rem 1.3rem;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      resize: none;
+      min-height: 52px;
+      max-height: 140px;
+      outline: none;
+      transition: all 0.2s;
+      line-height: 1.5;
+    }
+    #chat-input:focus {
+      border-color: var(--amber-primary);
+      box-shadow: 0 0 0 3.5px rgba(217, 119, 6, 0.15);
+    }
+
+    .icon-btn {
+      width: 52px; height: 52px;
+      border: none; border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+    }
+    .btn-send {
+      background: var(--gradient-amber);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+    }
+    .btn-send:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45); }
+    .btn-send:active { transform: scale(0.96); }
+    .btn-send:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    
+    .btn-action-tool {
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+    }
+    .btn-action-tool:hover {
+      border-color: var(--amber-primary);
+      background: var(--surface-warm);
+      transform: translateY(-2px);
+    }
+    .btn-mic.recording {
+      background: linear-gradient(135deg, #f43f5e, #be123c) !important;
+      border-color: #e11d48 !important;
+      color: #fff !important;
+      animation: pulseRecord 1.2s infinite;
+    }
+    @keyframes pulseRecord {
+      0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+      70% { box-shadow: 0 0 0 12px rgba(225, 29, 72, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    }
+
+    /* ── SUMMARY SCREEN ── */
+    #screen-summary {
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      min-height: 100vh;
+    }
+    .summary-card {
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 2.75rem;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 6px;
+      background: var(--gradient-amber);
+    }
+
+    .summary-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 0.9rem;
+      padding: 1.05rem 1.3rem;
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-sm);
+      align-items: center;
+    }
+    .summary-label {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--amber-dark);
+      min-width: 160px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .summary-value {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text-main);
+      flex: 1;
+    }
+
+    .btn-row { display: flex; gap: 14px; margin-top: 2rem; }
+    .btn-outline {
+      flex: 1;
+      padding: 0.95rem 1.3rem;
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+      border-radius: var(--radius-sm);
+      font-size: 0.98rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--amber-primary);
+      background: var(--surface-warm);
+    }
+    .btn-submit {
+      flex: 2;
+      background: var(--gradient-amber);
+      box-shadow: 0 4px 18px rgba(217, 119, 6, 0.35);
+    }
+    .btn-submit:hover {
+      box-shadow: 0 8px 24px rgba(217, 119, 6, 0.45);
+    }
+
+    /* ── STATUS SCREEN ── */
+    #screen-status {
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      min-height: 100vh;
+    }
+    .status-card {
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 3.25rem 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: var(--shadow-cream);
+      position: relative;
+    }
+    .status-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 6px;
+      background: var(--gradient-amber);
+    }
+    .status-icon {
+      font-size: 4.2rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+      animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .queue-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 5rem;
+      font-weight: 900;
+      background: var(--gradient-amber);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 1.25rem 0 0.5rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .urgent-notice {
+      background: #fff1f2;
+      border: 1.5px solid #fecdd3;
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #be123c;
+      margin-top: 1.5rem;
+      text-align: left;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .disclaimer {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-top: 2rem;
+      line-height: 1.6;
+      border-top: 1.5px solid var(--cream-border);
+      padding-top: 1.25rem;
+      font-weight: 500;
+    }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #0f172a;
+      color: #ffffff; padding: 0.9rem 1.85rem;
+      border-radius: var(--radius-full); font-size: 0.92rem; font-weight: 800;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .login-card, .summary-card, .status-card { padding: 1.75rem 1.25rem; }
+      .lang-grid { grid-template-columns: repeat(2, 1fr); }
+      .chat-header { padding: 0.85rem 1rem; }
+      .chat-input-area { padding: 1rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1: Language + Login / Registration
+══════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon">✨</div>
+      <div>
+        <div class="logo-text">AuraCare AI</div>
+        <div class="logo-sub">Smart Hospital Intake</div>
+      </div>
+    </div>
+
+    <h2>Patient Triage Check-in</h2>
+    <p class="subtitle">Tell us about your health concerns in your preferred language to get prioritized faster.</p>
+
+    <div class="field">
+      <label>Choose Your Language</label>
+      <div class="lang-grid">
+        <div class="lang-btn selected" data-lang="English" onclick="selectLang(this)">🇬🇧 English</div>
+        <div class="lang-btn" data-lang="Hindi" onclick="selectLang(this)">🇮🇳 हिंदी</div>
+        <div class="lang-btn" data-lang="Telugu" onclick="selectLang(this)">తెలుగు</div>
+        <div class="lang-btn" data-lang="Tamil" onclick="selectLang(this)">தமிழ்</div>
+        <div class="lang-btn" data-lang="Kannada" onclick="selectLang(this)">ಕನ್ನಡ</div>
+        <div class="lang-btn" data-lang="Bengali" onclick="selectLang(this)">বাংলা</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="login-id">Your Full Name or ABHA ID</label>
+      <input id="login-id" type="text" placeholder="e.g. Rahul Sharma or ABHA-102938" />
+    </div>
+
+    <button class="btn btn-primary" id="btn-login" onclick="handleLogin()">Start Intake Session →</button>
+
+    <div class="divider">or</div>
+
+    <button class="btn btn-outline" style="width:100%;" onclick="showRegister()">New Patient? Register Profile</button>
+
+    <!-- Register form (hidden by default) -->
+    <div id="register-form" style="display:none; margin-top:1.5rem; border-top:1.5px solid var(--cream-border); padding-top:1.5rem;">
+      <h3 style="margin-bottom:1.1rem; font-size:1.15rem; font-family:'Outfit',sans-serif; color:var(--amber-dark);">Patient Profile Registration</h3>
+      <div class="field">
+        <label for="reg-name">Full Legal Name *</label>
+        <input id="reg-name" type="text" placeholder="Full legal name" oninput="clearFieldError('reg-name')" />
+        <div class="field-error" id="reg-name-error">⚠ Full name is required</div>
+      </div>
+      <div class="field">
+        <label for="reg-age">Age *</label>
+        <input id="reg-age" type="number" placeholder="e.g. 28" min="1" max="120" oninput="clearFieldError('reg-age')" />
+        <div class="field-error" id="reg-age-error">⚠ Please enter a valid age (1–120)</div>
+      </div>
+      <div class="field">
+        <label for="reg-gender">Gender *</label>
+        <select id="reg-gender" onchange="clearFieldError('reg-gender')">
+          <option value="">Select Gender</option>
+          <option>Male</option><option>Female</option><option>Other</option>
+        </select>
+        <div class="field-error" id="reg-gender-error">⚠ Please select a gender</div>
+      </div>
+      <div class="field">
+        <label for="reg-contact">Phone Number * (10 digits only)</label>
+        <input id="reg-contact" type="tel"
+               placeholder="e.g. 9876543210"
+               inputmode="numeric"
+               maxlength="10"
+               oninput="filterPhoneInput(this); validatePhoneField();"
+               onblur="validatePhoneField()" />
+        <div class="field-error" id="reg-contact-error">⚠ Enter a valid 10-digit number starting with 6–9</div>
+      </div>
+      <div class="field"><label>ABHA ID (optional)</label><input id="reg-abha" type="text" placeholder="ABHA-XXXX-XXXX" /></div>
+      <div class="field" style="display:flex; align-items:flex-start; gap:10px; margin:1rem 0;">
+        <input type="checkbox" id="reg-consent" style="width:auto; margin-top:4px; accent-color:var(--amber-primary);" checked required />
+        <label for="reg-consent" style="font-size:0.82rem; color:var(--text-muted); line-height:1.4; margin:0;">
+          I consent to the collection and clinical processing of my health information (DPDP Act compliant).
+        </label>
+      </div>
+      <button class="btn btn-primary" id="btn-register" onclick="handleRegister()">Complete Registration & Begin →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2: Conversational Chat Intake
+══════════════════════════════════════════════ -->
+<div id="screen-chat" class="screen">
+  <div class="chat-header">
+    <div class="chat-avatar-top">🩺</div>
+    <div class="chat-header-info">
+      <h3 id="chat-patient-name">Patient Intake</h3>
+      <p>AI Clinical Assistant • Real-time Triage</p>
+    </div>
+    <div class="header-tools">
+      <button class="btn-tool" onclick="toggleAccessibility()" title="Toggle High Contrast & Large Text">🔍 A+ Text</button>
+      <span class="step-badge" id="chat-step-badge">Gathering Info</span>
+      <button class="btn-tool" id="btn-finish-intake" onclick="finishIntakeManually()" title="Finished answering? Review case summary" style="display:none; background:var(--gradient-amber); color:#fff; border:none; box-shadow:0 3px 12px rgba(217,119,6,0.35);">📋 Review Summary →</button>
+      <button class="btn-tool btn-logout" onclick="handlePatientLogout()" title="Exit intake session and return to registration">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages"></div>
+
+  <div class="chat-input-area">
+    <!-- Attachment Previews -->
+    <div id="attachment-preview-container" style="display:none; max-width:840px; margin:0 auto 0.85rem; gap:10px; flex-wrap:wrap;"></div>
+
+    <div class="chat-input-row">
+      <label class="icon-btn btn-action-tool" style="cursor:pointer;" title="Upload medical photo (rash/wound/report)">
+        📷
+        <input type="file" id="attachment-file-input" accept="image/*" style="display:none;" onchange="handleAttachmentUpload(event)" />
+      </label>
+      <button class="icon-btn btn-action-tool btn-mic" id="btn-mic" onclick="toggleVoice()" title="Voice input (Speak naturally)">🎤</button>
+      <div class="chat-input-wrap">
+        <textarea id="chat-input" rows="1" placeholder="Type your symptoms or tap the microphone to speak..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="icon-btn btn-send" id="btn-send" onclick="sendMessage()" title="Send Message">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3: Summary Review
+══════════════════════════════════════════════ -->
+<div id="screen-summary" class="screen">
+  <div class="summary-card">
+    <h2 style="display:flex; align-items:center; gap:10px;">📋 Review Clinical Intake</h2>
+    <p class="subtitle">Please verify your symptom details before they are dispatched to the doctor's queue.</p>
+    <div id="summary-rows"></div>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="goBack()">← Back to Chat</button>
+      <button class="btn-outline" onclick="handlePatientLogout()" style="border-color:var(--rose-border); color:var(--rose-primary);">🚪 Exit Session</button>
+      <button class="btn btn-submit" onclick="submitCase()">Confirm & Submit to Queue →</button>
+    </div>
+    <p class="disclaimer">This tool assists hospital triage workflow. It does not provide definitive medical diagnoses. If you are in severe distress, inform front desk staff immediately.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 4: Queue Status Confirmation
+══════════════════════════════════════════════ -->
+<div id="screen-status" class="screen">
+  <div class="status-card">
+    <div class="status-icon">🎉</div>
+    <h2>Case Prioritized!</h2>
+    <p style="color:var(--text-muted); margin-top:0.35rem">Your summary has been transmitted to the clinician workstation.</p>
+    <div class="queue-number" id="queue-number">—</div>
+    <p style="color:var(--amber-dark); font-weight:800; font-size:1.05rem;">Current Priority Position</p>
+    <div class="urgent-notice" id="urgent-notice" style="display:none">
+      <span style="font-size:1.5rem;">⚡</span>
+      <div>
+        <strong style="color:#9f1239;">High Priority Flag</strong>
+        <p style="font-size:0.86rem; margin-top:2px; color:#be123c;">Your symptoms have been flagged for expedited doctor review.</p>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="margin-top: 1.6rem; width:100%; border-color:var(--amber-primary); font-weight:800; color:var(--amber-dark);" onclick="handlePatientLogout()">← Register New Patient Profile</button>
+    <p class="disclaimer">Please take a seat in the waiting hall. Your token number will be announced on the display screens.</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+    ? window.location.origin
+    : "http://localhost:8000";
+
+  let state = {
+    language: 'English',
+    patientId: null,
+    patientName: '',
+    sessionId: null,
+    summary: null,
+    attachments: [],
+    transcriptHistory: [],
+    isRecording: false,
+    mediaRecorder: null,
+    audioChunks: [],
+  };
+
+  // ── DRAFT CACHING / OFFLINE RESILIENCE ──────
+  function saveDraft() {
+    try {
+      const draft = {
+        patientId: state.patientId,
+        patientName: state.patientName,
+        sessionId: state.sessionId,
+        language: state.language,
+        attachments: state.attachments,
+        transcriptHistory: state.transcriptHistory,
+      };
+      localStorage.setItem('sih_patient_draft', JSON.stringify(draft));
+    } catch (_) {}
+  }
+
+  function restoreDraft() {
+    try {
+      const saved = localStorage.getItem('sih_patient_draft');
+      if (!saved) return;
+      const draft = JSON.parse(saved);
+      if (draft.patientId && draft.sessionId) {
+        state.patientId = draft.patientId;
+        state.patientName = draft.patientName;
+        state.sessionId = draft.sessionId;
+        state.language = draft.language || 'English';
+        state.attachments = draft.attachments || [];
+        state.transcriptHistory = draft.transcriptHistory || [];
+
+        showScreen('chat');
+        document.getElementById('chat-patient-name').textContent = state.patientName;
+        const wrap = document.getElementById('chat-messages');
+        wrap.innerHTML = '';
+        state.transcriptHistory.forEach(item => addMessage(item.role, item.text, false));
+        renderAttachmentThumbnails();
+        toast('Draft restored from your previous session.');
+      }
+    } catch (_) {}
+  }
+
+  // ── WEBSOCKET LIVE QUEUE SYNC ────────────────
+  function initPatientWebSocket() {
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsHost = window.location.host || "localhost:8000";
+    const ws = new WebSocket(`${wsProtocol}//${wsHost}/ws/queue`);
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.event === "queue_reordered" && msg.case_id === state.submittedCaseId) {
+          document.getElementById('queue-number').textContent = '#' + msg.new_position;
+          toast('Your queue position was updated by the clinic staff.');
+        } else if (msg.event === "case_completed" && msg.case_id === state.submittedCaseId) {
+          document.getElementById('queue-number').textContent = '✅ Consulted';
+          toast('Consultation completed. Thank you!');
+        }
+      } catch (_) {}
+    };
+    ws.onclose = () => setTimeout(initPatientWebSocket, 4000);
+  }
+
+  // ── ACCESSIBILITY MODE ─────────────────────
+  function toggleAccessibility() {
+    document.body.classList.toggle('large-text-mode');
+    const isLarge = document.body.classList.contains('large-text-mode');
+    toast(isLarge ? '🔍 Large text mode enabled' : 'Normal text mode enabled');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.remove('active');
+      s.style.display = 'none';
+    });
+    const target = document.getElementById('screen-' + id);
+    if (target) {
+      target.classList.add('active');
+      target.style.display = 'flex';
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function toast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  // ── LANGUAGE SELECTION ─────────────────────
+  function selectLang(el) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    state.language = el.dataset.lang;
+  }
+
+  // ── REGISTER TOGGLE ─────────────────────────
+  function showRegister() {
+    const f = document.getElementById('register-form');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // ── LOGIN ───────────────────────────────────
+  async function handleLogin() {
+    const identifier = document.getElementById('login-id').value.trim();
+    if (!identifier) { toast('Please enter your name or ABHA ID'); return; }
+
+    const btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.textContent = 'Verifying...';
+
+    try {
+      const res = await fetch(`${API}/patient/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier })
+      });
+      if (!res.ok) { toast('Profile not found. Please register first.'); showRegister(); return; }
+      const data = await res.json();
+      state.patientId = data.patient_id;
+      state.patientName = data.name;
+      state.language = data.preferred_language || state.language;
+      startChatScreen();
+    } catch (e) {
+      toast('Connection error. Is the server running?');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Start Intake Session →';
+    }
+  }
+
+  // ── PHONE HELPERS ─────────────────────────────
+  // Strip any non-digit chars as user types (only allow numbers)
+  function filterPhoneInput(input) {
+    input.value = input.value.replace(/\D/g, '').slice(0, 10);
+  }
+
+  function validatePhoneNumber(value) {
+    // Must be exactly 10 digits starting with 6-9
+    return /^[6-9]\d{9}$/.test(value);
+  }
+
+  function validatePhoneField() {
+    const input = document.getElementById('reg-contact');
+    const error = document.getElementById('reg-contact-error');
+    const value = input.value.trim();
+
+    if (!value) {
+      input.classList.remove('input-invalid', 'input-valid');
+      error.classList.remove('visible');
+      return false; // empty = invalid for required field
+    }
+
+    if (validatePhoneNumber(value)) {
+      input.classList.remove('input-invalid');
+      input.classList.add('input-valid');
+      error.classList.remove('visible');
+      return true;
+    } else {
+      input.classList.remove('input-valid');
+      input.classList.add('input-invalid');
+      error.classList.add('visible');
+      return false;
+    }
+  }
+
+  // ── FIELD ERROR HELPERS ───────────────────────
+  function showFieldError(fieldId) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + '-error');
+    if (input) input.classList.add('input-invalid');
+    if (error) error.classList.add('visible');
+  }
+
+  function clearFieldError(fieldId) {
+    const input = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + '-error');
+    if (input) {
+      input.classList.remove('input-invalid');
+      // Only add green tick if field has a value
+      if (input.value.trim()) input.classList.add('input-valid');
+      else input.classList.remove('input-valid');
+    }
+    if (error) error.classList.remove('visible');
+  }
+
+  // ── REGISTER ────────────────────────────────
+  async function handleRegister() {
+    let hasError = false;
+
+    // --- Validate Name ---
+    const name = document.getElementById('reg-name').value.trim();
+    if (!name) {
+      showFieldError('reg-name');
+      hasError = true;
+    }
+
+    // --- Validate Age ---
+    const ageVal = document.getElementById('reg-age').value.trim();
+    const age = parseInt(ageVal);
+    if (!ageVal || isNaN(age) || age < 1 || age > 120) {
+      showFieldError('reg-age');
+      hasError = true;
+    }
+
+    // --- Validate Gender ---
+    const gender = document.getElementById('reg-gender').value;
+    if (!gender) {
+      showFieldError('reg-gender');
+      hasError = true;
+    }
+
+    // --- Validate Phone ---
+    const phone = document.getElementById('reg-contact').value.trim();
+    if (!phone || !validatePhoneNumber(phone)) {
+      showFieldError('reg-contact');
+      document.getElementById('reg-contact-error').classList.add('visible');
+      hasError = true;
+    }
+
+    if (hasError) {
+      toast('⚠ Please fill all required fields correctly');
+      // Scroll to first error
+      const firstErr = document.querySelector('#register-form .input-invalid');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('btn-register');
+    btn.disabled = true;
+    btn.textContent = 'Registering...';
+
+    const body = {
+      name,
+      age,
+      gender,
+      contact: phone,
+      abha_id: document.getElementById('reg-abha').value.trim() || null,
+      preferred_language: state.language,
+    };
+
+    try {
+      const res = await fetch(`${API}/patient/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        toast('❌ ' + (err.detail || 'Registration failed'));
+        return;
+      }
+      const data = await res.json();
+      state.patientId = data.patient_id;
+      state.patientName = data.name;
+      startChatScreen();
+    } catch (e) {
+      toast('❌ Connection error. Is the server running?');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Complete Registration & Begin →';
+    }
+  }
+
+  // ── CHAT SCREEN INIT ─────────────────────────
+  function startChatScreen() {
+    try {
+      showScreen('chat');
+      const nameEl = document.getElementById('chat-patient-name');
+      if (nameEl) nameEl.textContent = state.patientName || 'Patient';
+      
+      const wrap = document.getElementById('chat-messages');
+      if (wrap) wrap.innerHTML = '';
+      
+      state.transcriptHistory = [];
+      addMessage('assistant', `Hello ${state.patientName || 'there'}! 👋 I'm your AI intake assistant.\n\nPlease describe what brings you to the clinic today — describe your main symptoms in your own words.`);
+      state.sessionId = null;
+      state.summary = null;
+      state.attachments = [];
+      renderAttachmentThumbnails();
+
+      setTimeout(() => {
+        const input = document.getElementById('chat-input');
+        if (input) input.focus();
+      }, 150);
+    } catch (err) {
+      console.error('Error starting chat screen:', err);
+      toast('⚠ Error switching to chatbot: ' + err.message);
+    }
+  }
+
+  // ── ATTACHMENT UPLOAD ───────────────────────
+  async function handleAttachmentUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    toast('Uploading medical photo...');
+    try {
+      const res = await fetch(`${API}/chat/upload-attachment`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast(`Upload failed: ${err.detail || 'Error'}`);
+        return;
+      }
+
+      const data = await res.json();
+      state.attachments.push(data.url);
+      renderAttachmentThumbnails();
+      saveDraft();
+      toast('📷 Photo attached to clinical file.');
+    } catch (e) {
+      toast('Network error uploading attachment.');
+    } finally {
+      event.target.value = '';
+    }
+  }
+
+  function renderAttachmentThumbnails() {
+    const container = document.getElementById('attachment-preview-container');
+    if (!state.attachments || state.attachments.length === 0) {
+      container.style.display = 'none';
+      container.innerHTML = '';
+      return;
+    }
+
+    container.style.display = 'flex';
+    container.innerHTML = state.attachments.map((url, idx) => `
+      <div style="position:relative; width:60px; height:60px; border-radius:14px; overflow:hidden; border:2px solid var(--amber-primary); box-shadow:0 4px 14px rgba(217,119,6,0.2);">
+        <img src="${url}" style="width:100%; height:100%; object-fit:cover;" />
+        <button onclick="removeAttachment(${idx})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.75); color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center;">×</button>
+      </div>
+    `).join('');
+  }
+
+  function removeAttachment(idx) {
+    state.attachments.splice(idx, 1);
+    renderAttachmentThumbnails();
+    saveDraft();
+  }
+
+  // ── SEND MESSAGE ────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('btn-send').disabled = true;
+
+    addMessage('patient', text);
+    const typingId = showTyping();
+
+    try {
+      let res, data;
+
+      if (!state.sessionId) {
+        // First message — start session
+        res = await fetch(`${API}/chat/start`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_id: state.patientId,
+            language: state.language,
+            first_complaint: text,
+          })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `Server error (${res.status})`);
+        }
+        data = await res.json();
+        state.sessionId = data.session_id;
+      } else {
+        // Subsequent messages
+        res = await fetch(`${API}/chat/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: state.sessionId, text })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || `Server error (${res.status})`);
+        }
+        data = await res.json();
+      }
+
+      // Show manual finish button once at least 1 message is sent
+      const finishBtn = document.getElementById('btn-finish-intake');
+      if (finishBtn) finishBtn.style.display = 'inline-flex';
+
+      removeTyping(typingId);
+      if (data && data.reply) {
+        addMessage('assistant', data.reply);
+        playTTS(data.reply);
+      }
+      saveDraft();
+
+      if (data && data.done) {
+        state.summary = data.summary;
+        document.getElementById('chat-step-badge').textContent = '✅ Intake Complete';
+        toast('Intake complete! Preparing summary for doctor...');
+        setTimeout(() => showSummaryScreen(), 1200);
+      }
+    } catch (e) {
+      removeTyping(typingId);
+      addMessage('assistant', `⚠️ ${e.message || 'Connection error. Please check your network and try again.'}`);
+    } finally {
+      document.getElementById('btn-send').disabled = false;
+      document.getElementById('chat-input').focus();
+    }
+  }
+
+  // ── MANUAL FINISH INTAKE ────────────────────
+  async function finishIntakeManually() {
+    const btn = document.getElementById('btn-finish-intake');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Generating Summary...';
+    }
+    toast('📋 Generating clinical summary for doctor review...');
+
+    try {
+      if (state.sessionId) {
+        const res = await fetch(`${API}/chat/finish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: state.sessionId })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.summary = data.summary;
+        }
+      }
+      document.getElementById('chat-step-badge').textContent = '✅ Intake Complete';
+      showSummaryScreen();
+    } catch (err) {
+      console.error('Error generating summary:', err);
+      showSummaryScreen();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '📋 Review Summary →';
+      }
+    }
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  // ── CHAT HELPERS ─────────────────────────────
+  function addMessage(role, text, record = true) {
+    if (record) {
+      state.transcriptHistory.push({ role, text });
+    }
+    const wrap = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.innerHTML = `
+      <div class="msg-avatar">${role === 'assistant' ? '🩺' : '👤'}</div>
+      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+    `;
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function showTyping() {
+    const wrap = document.getElementById('chat-messages');
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = id;
+    div.innerHTML = `
+      <div class="msg-avatar">🩺</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    `;
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  // ── TTS ─────────────────────────────────────
+  async function playTTS(text) {
+    try {
+      const res = await fetch(`${API}/chat/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, language: state.language })
+      });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+    } catch (_) { /* TTS is optional — fail silently */ }
+  }
+
+  // ── VOICE INPUT ──────────────────────────────
+  async function toggleVoice() {
+    if (!state.isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioChunks = [];
+        state.mediaRecorder = new MediaRecorder(stream);
+        state.mediaRecorder.ondataavailable = e => state.audioChunks.push(e.data);
+        state.mediaRecorder.onstop = handleVoiceStop;
+        state.mediaRecorder.start();
+        state.isRecording = true;
+        document.getElementById('btn-mic').classList.add('recording');
+        document.getElementById('btn-mic').title = 'Stop recording';
+        toast('🎤 Listening... Click mic when done');
+      } catch (e) {
+        toast('Microphone access denied');
+      }
+    } else {
+      state.mediaRecorder.stop();
+      state.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+      state.isRecording = false;
+      document.getElementById('btn-mic').classList.remove('recording');
+      document.getElementById('btn-mic').title = 'Voice input';
+    }
+  }
+
+  async function handleVoiceStop() {
+    const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+    const formData = new FormData();
+    formData.append('file', blob, 'voice.webm');
+    formData.append('language', state.language);
+
+    toast('Processing voice transcription...');
+    try {
+      const res = await fetch(`${API}/chat/stt`, { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('chat-input').value = data.text;
+        sendMessage();
+      } else {
+        toast('Could not recognize voice. Please type your message.');
+      }
+    } catch (_) {
+      toast('Voice STT unavailable. Please type instead.');
+    }
+  }
+
+  // ── SUMMARY SCREEN ───────────────────────────
+  function showSummaryScreen() {
+    showScreen('summary');
+    const container = document.getElementById('summary-rows');
+    container.innerHTML = '';
+
+    const summary = state.summary || {};
+    const getVal = (key) => summary[key] || summary[key.toLowerCase()] || summary[key.replace('/', '_')] || summary[key.replace(' ', '_')] || '';
+
+    const fields = [
+      ['Chief Complaint', 'Chief Complaint'],
+      ['Onset', 'Onset'],
+      ['Character', 'Character'],
+      ['Location/Radiation', 'Location / Radiation'],
+      ['Associated Symptoms', 'Associated Symptoms'],
+      ['Severity', 'Severity'],
+    ];
+
+    let renderedCount = 0;
+    fields.forEach(([key, label]) => {
+      const val = getVal(key);
+      if (val && val !== 'Not specified') {
+        renderedCount++;
+        const row = document.createElement('div');
+        row.className = 'summary-row';
+        row.innerHTML = `<span class="summary-label">${label}</span><span class="summary-value">${val}</span>`;
+        container.appendChild(row);
+      }
+    });
+
+    if (renderedCount === 0) {
+      const firstText = (state.transcriptHistory && state.transcriptHistory.length > 0)
+        ? state.transcriptHistory[0].text
+        : 'Consultation Checkup';
+      container.innerHTML = `<div class="summary-row"><span class="summary-label">Chief Complaint</span><span class="summary-value">${firstText}</span></div>`;
+    }
+
+    if (state.attachments && state.attachments.length > 0) {
+      const row = document.createElement('div');
+      row.className = 'summary-row';
+      row.innerHTML = `
+        <span class="summary-label">Photos Attached</span>
+        <span class="summary-value" style="display:flex; gap:8px;">
+          ${state.attachments.map(url => `<img src="${url}" style="width:48px; height:48px; object-fit:cover; border-radius:10px; border:1.5px solid var(--cream-border);" />`).join('')}
+        </span>
+      `;
+      container.appendChild(row);
+    }
+  }
+
+  function goBack() { showScreen('chat'); }
+
+  // ── SUBMIT CASE ──────────────────────────────
+  async function submitCase() {
+    const btn = document.querySelector('.btn-submit');
+    btn.disabled = true; btn.textContent = 'Submitting to Doctor...';
+
+    try {
+      const res = await fetch(`${API}/chat/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          patient_id: state.patientId,
+          department: 'general',
+          attachments: state.attachments || [],
+        })
+      });
+      const data = await res.json();
+      state.submittedCaseId = data.case_id;
+
+      // Clear cached draft
+      localStorage.removeItem('sih_patient_draft');
+
+      document.getElementById('queue-number').textContent = '#' + data.queue_position;
+      const notice = document.getElementById('urgent-notice');
+      if (data.urgency_flag) notice.style.display = 'flex';
+      else notice.style.display = 'none';
+      showScreen('status');
+    } catch (e) {
+      toast('Submission failed. Please try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Confirm & Submit to Queue →';
+    }
+  }
+
+  // ── PATIENT LOGOUT / RESET ──────────────────
+  function handlePatientLogout() {
+    // 1. Clear cached session draft from browser storage
+    localStorage.removeItem('sih_patient_draft');
+
+    // 2. Reset intake state
+    state.patientId = null;
+    state.patientName = '';
+    state.sessionId = null;
+    state.summary = null;
+    state.attachments = [];
+    state.transcriptHistory = [];
+    state.submittedCaseId = null;
+
+    // 3. Clear registration and login inputs
+    const regName = document.getElementById('reg-name');
+    const regAge = document.getElementById('reg-age');
+    const regGender = document.getElementById('reg-gender');
+    const regContact = document.getElementById('reg-contact');
+    const regAbha = document.getElementById('reg-abha');
+    const loginId = document.getElementById('login-id');
+    const chatInput = document.getElementById('chat-input');
+
+    if (regName) { regName.value = ''; clearFieldError('reg-name'); }
+    if (regAge) { regAge.value = ''; clearFieldError('reg-age'); }
+    if (regGender) { regGender.value = ''; clearFieldError('reg-gender'); }
+    if (regContact) { regContact.value = ''; clearFieldError('reg-contact'); }
+    if (regAbha) regAbha.value = '';
+    if (loginId) loginId.value = '';
+    if (chatInput) chatInput.value = '';
+
+    // 4. Clear chat messages wrap
+    const msgWrap = document.getElementById('chat-messages');
+    if (msgWrap) msgWrap.innerHTML = '';
+
+    // 5. Open the registration form directly
+    const regForm = document.getElementById('register-form');
+    if (regForm) regForm.style.display = 'block';
+
+    // 6. Transition back to login / registration screen
+    showScreen('login');
+
+    // 7. Feedback toast
+    toast('👋 Session ended. Welcome to Patient Registration.');
+  }
+
+  // Restore draft if available & start WebSocket
+  restoreDraft();
+  initPatientWebSocket();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sih-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sih-ai-intake
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-sih-production-secret-key-2026}
+      - DATABASE_URL=sqlite:///./sih.db
+    volumes:
+      - sih_data:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  sih_data:

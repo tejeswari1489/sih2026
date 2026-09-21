@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraCare — Intelligent Healthcare Triage Platform</title>
+  <meta name="description" content="AI-Assisted Patient Intake, Multilingual Voice Triage & Prioritization System" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fff6dc;
+      --bg-gradient: linear-gradient(135deg, #fff6dc 0%, #fffaea 40%, #fff1c5 100%);
+      --surface: #ffffff;
+      --surface-warm: #fef9e7;
+      
+      --cream-base: #fff6dc;
+      --cream-border: #ebd99f;
+      --cream-border-subtle: #f4e8be;
+      
+      --amber-primary: #d97706;
+      --amber-dark: #b45309;
+      --amber-vibrant: #f59e0b;
+      --amber-light: #fef3c7;
+      
+      --rose-primary: #e11d48;
+      --rose-light: #ffe4e6;
+      --rose-border: #fecdd3;
+      
+      --mint-primary: #059669;
+      --mint-light: #ecfdf5;
+      --mint-border: #a7f3d0;
+      
+      --blue-primary: #0284c7;
+      --blue-light: #e0f2fe;
+      --blue-border: #bae6fd;
+
+      --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --gradient-hero: linear-gradient(135deg, #d97706 0%, #b45309 60%, #e11d48 100%);
+      
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-light: #64748b;
+      
+      --shadow-cream: 0 10px 30px -5px rgba(217, 119, 6, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      --shadow-hover: 0 20px 40px -10px rgba(217, 119, 6, 0.18);
+      
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navbar */
+    header {
+      background: rgba(255, 246, 220, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 2px solid var(--cream-border);
+      padding: 1.1rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(217, 119, 6, 0.05);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: var(--gradient-amber);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.3);
+    }
+    .brand-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .brand-text span {
+      font-size: 0.74rem;
+      color: var(--amber-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px;
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-full);
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--amber-dark);
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--mint-primary);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 4.5rem 1.5rem 2.5rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .badge-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 22px;
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--amber-dark);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-cream);
+    }
+    .hero h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.6rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #0f172a 20%, #b45309 60%, #e11d48 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 720px;
+      margin: 0 auto 2.5rem;
+      font-weight: 500;
+    }
+
+    /* Portal Cards Grid */
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      max-width: 1240px;
+      margin: 0 auto 4.5rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    @media (max-width: 960px) {
+      .portal-grid { grid-template-columns: 1fr; max-width: 520px; }
+      .hero h2 { font-size: 2.5rem; }
+    }
+
+    .portal-card {
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-cream);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      color: inherit;
+    }
+    .portal-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--amber-primary);
+      box-shadow: var(--shadow-hover);
+    }
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 6px;
+      background: var(--gradient-amber);
+    }
+    
+    .portal-card.card-doctor::before { background: linear-gradient(135deg, #e11d48, #d97706); }
+    .portal-card.card-admin::before { background: linear-gradient(135deg, #059669, #d97706); }
+
+    .portal-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 1.6rem;
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark);
+    }
+    .card-doctor .portal-icon { color: var(--rose-primary); }
+    .card-admin .portal-icon { color: var(--mint-primary); }
+
+    .portal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.65rem;
+      letter-spacing: -0.01em;
+    }
+    .portal-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.85rem;
+      flex: 1;
+      font-weight: 500;
+    }
+
+    .portal-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 1.85rem;
+    }
+    .portal-tag {
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      background: var(--surface-warm);
+      color: var(--amber-dark);
+      border: 1.5px solid var(--cream-border);
+    }
+
+    .portal-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.95rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #fff;
+      background: var(--gradient-amber);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35);
+      transition: all 0.2s;
+    }
+    .card-doctor .portal-btn { background: linear-gradient(135deg, #e11d48, #d97706); }
+    .card-admin .portal-btn { background: linear-gradient(135deg, #059669, #d97706); }
+
+    /* Features Grid */
+    .features-section {
+      background: #ffffff;
+      border-top: 2px solid var(--cream-border);
+      padding: 4.5rem 1.5rem;
+    }
+    .features-container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .features-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+    .features-header p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.75rem;
+    }
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 550px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+
+    .feature-card {
+      background: var(--surface-warm);
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-md);
+      padding: 1.85rem;
+      transition: all 0.25s;
+    }
+    .feature-card:hover {
+      background: #ffffff;
+      border-color: var(--amber-primary);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-cream);
+    }
+    .feature-icon { font-size: 2.4rem; margin-bottom: 1rem; }
+    .feature-title { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.45rem; }
+    .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; font-weight: 500; }
+
+    /* Footer */
+    footer {
+      border-top: 2px solid var(--cream-border);
+      padding: 1.85rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-light);
+      background: var(--bg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header>
+    <a href="/frontend/index.html" class="brand">
+      <div class="brand-icon">✨</div>
+      <div class="brand-text">
+        <h1>AuraCare AI</h1>
+        <span>Intelligent Clinical Triage</span>
+      </div>
+    </a>
+
+    <div class="live-status">
+      <div class="pulse-dot"></div>
+      <span>FastAPI Backend Active</span>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="badge-hero">⚡ Smart India Hackathon (SIH) Healthcare Edition</div>
+    <h2>Intelligent Clinical Intake & Priority Triage</h2>
+    <p>Empowering hospitals with multilingual voice-driven intake, AI-assisted symptom analysis, and instant doctor triage prioritization.</p>
+  </section>
+
+  <!-- Portal Cards Grid -->
+  <section class="portal-grid">
+    <!-- Patient Card -->
+    <a href="/frontend/patient.html" class="portal-card card-patient">
+      <div class="portal-icon">🩺</div>
+      <h3 class="portal-title">Patient Intake Portal</h3>
+      <p class="portal-desc">Multilingual conversational case-taking with Whisper voice input, photo attachment support, and automatic SBAR summary generation.</p>
+      <div class="portal-tags">
+        <span class="portal-tag">10 Indian Languages</span>
+        <span class="portal-tag">Whisper Voice STT</span>
+        <span class="portal-tag">Edge-TTS Speech</span>
+      </div>
+      <div class="portal-btn">
+        <span>Launch Patient Intake</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <!-- Doctor Card -->
+    <a href="/frontend/doctor.html" class="portal-card card-doctor">
+      <div class="portal-icon">👨‍⚕️</div>
+      <h3 class="portal-title">Doctor Triage Dashboard</h3>
+      <p class="portal-desc">Live WebSocket-synchronized patient queue with real-time urgency alerts, structured SBAR clinical summaries, and consultation review tools.</p>
+      <div class="portal-tags">
+        <span class="portal-tag">Live Queue Stream</span>
+        <span class="portal-tag">Red Flag Triage</span>
+        <span class="portal-tag">Image Viewer</span>
+      </div>
+      <div class="portal-btn">
+        <span>Open Clinician Queue</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <!-- Admin Card -->
+    <a href="/frontend/admin.html" class="portal-card card-admin">
+      <div class="portal-icon">📊</div>
+      <h3 class="portal-title">Admin & MedOps Hub</h3>
+      <p class="portal-desc">Hospital-wide capacity metrics, department case distribution, live waiting times, staff directory management, and full audit logs.</p>
+      <div class="portal-tags">
+        <span class="portal-tag">KPI Analytics</span>
+        <span class="portal-tag">Staff CRUD</span>
+        <span class="portal-tag">Audit Trail</span>
+      </div>
+      <div class="portal-btn">
+        <span>Open Admin Console</span>
+        <span>→</span>
+      </div>
+    </a>
+  </section>
+
+  <!-- Feature Grid Section -->
+  <section class="features-section">
+    <div class="features-container">
+      <div class="features-header">
+        <h3>Architecture & Intelligence Capabilities</h3>
+        <p>Built for resilience, extreme speed, and clinical safety.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <div class="feature-title">Gemini 3.6 Flash</div>
+          <div class="feature-desc">Adaptive clinical interview reasoning with Tenacity retry resilience.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <div class="feature-title">ChromaDB Medical RAG</div>
+          <div class="feature-desc">Vector-backed medical literature retrieval for diagnostic accuracy.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🚨</div>
+          <div class="feature-title">Dual Urgency Engine</div>
+          <div class="feature-desc">Deterministic red-flag regex matching paired with AI severity classification.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">WebSocket Sync</div>
+          <div class="feature-desc">Zero-latency live synchronization between patient intake and doctor queues.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div>AuraCare — Intelligent Healthcare Triage Platform</div>
+    <div>FastAPI • Google Gemini • OpenAI Whisper • Edge-TTS • ChromaDB</div>
+  </footer>
+
+</body>
+</html>

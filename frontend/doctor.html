@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraCare Clinician — Doctor Triage Dashboard</title>
+  <meta name="description" content="Intelligent doctor triage queue, live patient monitoring, and AI clinical summaries." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #fff6dc;
+      --bg-gradient: linear-gradient(135deg, #fff6dc 0%, #fffaea 35%, #fef3c7 100%);
+      --surface: #ffffff;
+      --surface-warm: #fef9e7;
+      
+      --cream-base: #fff6dc;
+      --cream-border: #ebd99f;
+      --cream-border-subtle: #f4e8be;
+      
+      --amber-primary: #d97706;
+      --amber-dark: #b45309;
+      --amber-vibrant: #f59e0b;
+      --amber-light: #fef3c7;
+      --amber-border: #ebd99f;
+      
+      --rose-primary: #e11d48;
+      --rose-light: #ffe4e6;
+      --rose-border: #fecdd3;
+      
+      --mint-primary: #059669;
+      --mint-light: #ecfdf5;
+      --mint-border: #a7f3d0;
+      
+      --blue-primary: #0284c7;
+      --blue-light: #e0f2fe;
+      --blue-border: #bae6fd;
+
+      --gradient-hero: linear-gradient(135deg, #d97706 0%, #b45309 60%, #e11d48 100%);
+      --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --gradient-rose: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+      --gradient-mint: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --gradient-blue: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-light: #64748b;
+      
+      --shadow-soft: 0 10px 30px -5px rgba(217, 119, 6, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      --shadow-hover: 0 16px 36px -8px rgba(217, 119, 6, 0.18);
+      --shadow-rose: 0 10px 30px -5px rgba(225, 29, 72, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+      
+      --radius-sm: 14px;
+      --radius-md: 20px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 275px; flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1.5px solid var(--cream-border);
+      display: flex; flex-direction: column;
+      padding: 1.5rem 1.25rem;
+      position: sticky; top: 0; height: 100vh;
+      z-index: 30;
+      box-shadow: 2px 0 16px rgba(217, 119, 6, 0.04);
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 2.25rem; padding: 0 0.5rem;
+    }
+    .sidebar-logo-icon {
+      width: 44px; height: 44px;
+      background: var(--gradient-hero);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+    }
+    .sidebar-logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem; font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+    .sidebar-logo-sub {
+      font-size: 0.74rem; color: var(--amber-primary);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-section-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      padding: 0 0.75rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0.85rem 1.1rem; border-radius: var(--radius-sm);
+      cursor: pointer; font-size: 0.94rem; font-weight: 800; color: var(--text-muted);
+      margin-bottom: 6px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1.5px solid transparent; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover {
+      background: var(--amber-light);
+      color: var(--amber-dark);
+      transform: translateX(3px);
+    }
+    .nav-item.active {
+      background: var(--surface-warm);
+      border-color: var(--cream-border);
+      color: var(--amber-dark);
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.12);
+    }
+    .nav-badge {
+      margin-left: auto; background: var(--gradient-rose); color: #fff;
+      border-radius: var(--radius-full); padding: 3px 10px; font-size: 0.74rem; font-weight: 800;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35);
+      animation: pulseAlert 1.5s infinite;
+    }
+    @keyframes pulseAlert {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 1.1rem;
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+    .doc-avatar {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      background: var(--gradient-amber);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+    .doc-name { font-weight: 800; color: var(--text-main); font-size: 0.94rem; }
+    .doc-dept { color: var(--amber-primary); font-size: 0.76rem; font-weight: 800; margin-top: 1px; }
+
+    /* ── MAIN CONTENT ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .topbar {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1.5px solid var(--cream-border);
+      padding: 1rem 2.25rem; display: flex; align-items: center; gap: 14px;
+      position: sticky; top: 0; z-index: 20;
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.04);
+    }
+    .topbar h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem; font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+    .topbar-actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+
+    .refresh-btn {
+      background: #ffffff; border: 1.5px solid var(--cream-border);
+      color: var(--amber-dark); border-radius: var(--radius-sm); padding: 8px 18px;
+      font-size: 0.88rem; font-weight: 800; cursor: pointer; font-family: inherit;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .refresh-btn:hover {
+      background: var(--amber-light);
+      border-color: var(--amber-primary);
+      transform: translateY(-1px);
+    }
+
+    .btn-doc-logout {
+      background: #ffffff;
+      border: 1.5px solid var(--rose-border);
+      color: var(--rose-primary);
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-doc-logout:hover {
+      background: var(--rose-light);
+      border-color: var(--rose-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+    }
+    .sidebar-logout-btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .live-status {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--amber-dark);
+    }
+    .live-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--rose-primary);
+      animation: livepulse 1.8s infinite;
+    }
+    @keyframes livepulse {
+      0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    }
+
+    /* ── PANELS ── */
+    .panel { display: none; padding: 2.25rem; overflow-y: auto; height: calc(100vh - 72px); }
+    .panel.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── QUEUE STATS ── */
+    .queue-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;
+      margin-bottom: 2.25rem;
+    }
+    .stat-card {
+      background: #ffffff;
+      border-radius: var(--radius-md); padding: 1.4rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 5px;
+    }
+    .stat-card.card-total { border: 2px solid var(--cream-border); }
+    .stat-card.card-total::before { background: var(--gradient-amber); }
+    
+    .stat-card.card-urgent { border: 2px solid var(--rose-border); }
+    .stat-card.card-urgent::before { background: var(--gradient-rose); }
+    
+    .stat-card.card-wait { border: 2px solid var(--amber-border); }
+    .stat-card.card-wait::before { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    
+    .stat-card.card-done { border: 2px solid var(--mint-border); }
+    .stat-card.card-done::before { background: var(--gradient-mint); }
+
+    .stat-label {
+      font-size: 0.84rem; font-weight: 800; color: var(--text-muted);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.4rem; font-weight: 900;
+      color: var(--text-main); letter-spacing: -0.02em;
+    }
+    .stat-value.urgent { color: var(--rose-primary); }
+    .stat-value.accent { color: var(--amber-dark); }
+    .stat-value.success { color: var(--mint-primary); }
+
+    .section-title {
+      font-size: 0.9rem; font-weight: 800; color: var(--rose-primary);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+    }
+
+    .queue-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .queue-card {
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-md); padding: 1.35rem 1.6rem;
+      display: flex; align-items: center; gap: 18px;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      box-shadow: var(--shadow-soft);
+    }
+    .queue-card:hover {
+      border-color: var(--amber-primary);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    .queue-card.urgent {
+      border: 2px solid var(--rose-border);
+      border-left: 6px solid var(--rose-primary);
+      background: #ffffff;
+    }
+    .queue-card.urgent:hover {
+      box-shadow: var(--shadow-rose);
+    }
+
+    .queue-pos {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: var(--amber-light); border: 1.5px solid var(--cream-border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900; font-size: 1.2rem; flex-shrink: 0;
+      color: var(--amber-dark);
+    }
+    .queue-pos.urgent {
+      background: var(--rose-light);
+      border-color: var(--rose-border);
+      color: var(--rose-primary);
+    }
+
+    .queue-info { flex: 1; }
+    .queue-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800; font-size: 1.15rem;
+      color: var(--text-main);
+    }
+    .queue-complaint {
+      color: var(--text-muted); font-size: 0.94rem; margin-top: 3px;
+      line-height: 1.45; font-weight: 500;
+    }
+    .queue-meta {
+      font-size: 0.82rem; color: var(--text-light); margin-top: 5px;
+      font-weight: 600;
+    }
+
+    .queue-tags { display: flex; gap: 8px; flex-direction: column; align-items: flex-end; }
+    .tag {
+      border-radius: var(--radius-full); padding: 5px 14px; font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .tag-urgent {
+      background: var(--rose-light); color: var(--rose-primary);
+      border: 1.5px solid var(--rose-border);
+    }
+    .tag-waiting {
+      background: var(--amber-light); color: var(--amber-dark);
+      border: 1.5px solid var(--cream-border);
+    }
+    .tag-dept {
+      background: #f8fafc; color: var(--text-muted);
+      border: 1.5px solid #e2e8f0;
+    }
+
+    .queue-action {
+      background: var(--gradient-amber);
+      color: #fff; border-radius: var(--radius-sm); padding: 9px 20px;
+      font-size: 0.9rem; font-weight: 800; cursor: pointer; font-family: inherit;
+      border: none;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .queue-action:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(217, 119, 6, 0.45);
+    }
+
+    /* ── CASE DETAIL PANEL ── */
+    .case-back {
+      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;
+      color: var(--amber-dark); font-size: 0.94rem; font-weight: 800; cursor: pointer;
+      padding: 8px 18px; background: #ffffff; border-radius: var(--radius-full);
+      border: 1.5px solid var(--cream-border); transition: all 0.2s;
+    }
+    .case-back:hover {
+      background: var(--amber-light);
+      transform: translateX(-3px);
+    }
+
+    .case-header {
+      background: #ffffff;
+      border: 2px solid var(--cream-border);
+      border-radius: var(--radius-md); padding: 1.6rem 2rem;
+      margin-bottom: 1.35rem; display: flex; align-items: center; gap: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+    .case-patient-avatar {
+      width: 64px; height: 64px; border-radius: 18px;
+      background: var(--gradient-hero);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; flex-shrink: 0;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(217, 119, 6, 0.25);
+    }
+    .case-patient-info h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.45rem; font-weight: 800; color: var(--text-main);
+    }
+    .case-patient-info p { color: var(--text-muted); font-size: 0.92rem; margin-top: 3px; font-weight: 600; }
+
+    .urgency-banner {
+      background: var(--rose-light);
+      border: 2px solid var(--rose-border);
+      border-radius: var(--radius-md); padding: 1.35rem 1.75rem;
+      margin-bottom: 1.35rem; display: flex; align-items: flex-start; gap: 16px;
+    }
+    .urgency-banner-icon { font-size: 2rem; flex-shrink: 0; }
+    .urgency-banner-text strong {
+      color: var(--rose-primary); display: block; font-size: 1.05rem; margin-bottom: 2px;
+      font-family: 'Outfit', sans-serif;
+    }
+    .urgency-banner-text p { color: #be123c; font-size: 0.92rem; line-height: 1.45; font-weight: 500; }
+
+    .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+    .case-block {
+      background: #ffffff;
+      border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-md); padding: 1.4rem 1.75rem;
+      box-shadow: var(--shadow-soft);
+    }
+    .case-block.full { grid-column: 1 / -1; }
+    .case-block h3 {
+      font-size: 0.84rem; font-weight: 800; color: var(--amber-dark);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.9rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .info-row {
+      display: flex; justify-content: space-between; margin-bottom: 10px;
+      font-size: 0.94rem; padding: 6px 0; border-bottom: 1px solid #fef3c7;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .lbl { color: var(--text-muted); font-weight: 700; }
+    .info-row .val { font-weight: 700; text-align: right; max-width: 65%; color: var(--text-main); }
+
+    .pill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      background: #f8fafc; border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-full); padding: 6px 16px; font-size: 0.86rem; font-weight: 800;
+      color: var(--text-muted);
+    }
+    .pill.allergy {
+      background: var(--rose-light); border-color: var(--rose-border);
+      color: var(--rose-primary);
+    }
+    .pill.med {
+      background: var(--amber-light); border-color: var(--cream-border);
+      color: var(--amber-dark);
+    }
+    .pill.condition {
+      background: var(--surface-warm); border-color: var(--cream-border);
+      color: var(--amber-primary);
+    }
+
+    .past-visit {
+      background: var(--surface-warm); border: 1.5px solid var(--cream-border);
+      border-radius: var(--radius-sm); padding: 0.95rem 1.3rem; margin-bottom: 8px; font-size: 0.92rem;
+    }
+    .past-visit .pv-date { color: var(--amber-dark); font-size: 0.82rem; font-weight: 800; margin-bottom: 3px; }
+
+    .case-actions { display: flex; gap: 14px; margin-top: 1.85rem; }
+    .btn-review {
+      padding: 1rem 2.2rem; border-radius: var(--radius-sm);
+      background: var(--gradient-amber);
+      color: #fff; font-weight: 800; font-size: 0.98rem;
+      cursor: pointer; border: none; font-family: inherit;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 18px rgba(217, 119, 6, 0.3);
+    }
+    .btn-review:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(217, 119, 6, 0.4);
+    }
+    .btn-reorder {
+      padding: 1rem 2.2rem; border-radius: var(--radius-sm);
+      background: #ffffff; border: 2px solid var(--cream-border);
+      color: var(--amber-dark); font-weight: 800; font-size: 0.98rem;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-reorder:hover {
+      border-color: var(--amber-primary); color: var(--amber-primary);
+      background: var(--amber-light);
+      transform: translateY(-2px);
+    }
+
+    /* ── EMPTY / LOADING ── */
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .spinner {
+      width: 40px; height: 40px; border: 3.5px solid var(--cream-border);
+      border-top-color: var(--amber-primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 3rem auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 900px) {
+      .queue-stats { grid-template-columns: repeat(2, 1fr); }
+      .case-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ──────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🩺</div>
+    <div>
+      <div class="sidebar-logo-text">AuraCare Clinician</div>
+      <div class="sidebar-logo-sub">OPD Triage Hub</div>
+    </div>
+  </div>
+
+  <div class="nav-section-title">Navigation</div>
+  <button class="nav-item active" id="nav-queue" onclick="showPanel('queue')">
+    📋 Live Triage Queue
+    <span class="nav-badge" id="badge-urgent">0</span>
+  </button>
+  <button class="nav-item" id="nav-case" onclick="showPanel('case')" style="display:none">
+    🗂️ Active Case Dossier
+  </button>
+
+  <div style="margin-top:auto;">
+    <div class="sidebar-footer" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="doc-avatar">👨‍⚕️</div>
+        <div>
+          <div class="doc-name">Dr. Attending</div>
+          <div class="doc-dept">General Medicine & Triage</div>
+        </div>
+      </div>
+      <button class="btn-doc-logout sidebar-logout-btn" onclick="handleDoctorLogout()" title="Log out of clinician dashboard">
+        🚪 Logout
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN CONTENT ─────────────────────────── -->
+<main class="main">
+  <div class="topbar">
+    <div class="live-status">
+      <div class="live-dot"></div>
+      <span>LIVE WEBSOCKET SYNC</span>
+    </div>
+    <h1 id="topbar-title">Patient Queue</h1>
+    <div class="topbar-actions">
+      <span id="last-refresh" style="font-size:0.86rem; color:var(--text-muted); font-weight:700;"></span>
+      <button class="refresh-btn" onclick="loadQueue()">↻ Refresh</button>
+      <button class="btn-doc-logout" onclick="handleDoctorLogout()" title="Log out of clinician dashboard">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- QUEUE PANEL -->
+  <div class="panel active" id="panel-queue">
+    <div class="queue-stats">
+      <div class="stat-card card-total">
+        <div class="stat-label">Total in Queue <span>👥</span></div>
+        <div class="stat-value accent" id="stat-total">—</div>
+      </div>
+      <div class="stat-card card-urgent">
+        <div class="stat-label">Priority / Urgent <span>⚡</span></div>
+        <div class="stat-value urgent" id="stat-urgent">—</div>
+      </div>
+      <div class="stat-card card-wait">
+        <div class="stat-label">Est. Avg Wait <span>⏱️</span></div>
+        <div class="stat-value" id="stat-wait">—</div>
+      </div>
+      <div class="stat-card card-done">
+        <div class="stat-label">Status <span>✨</span></div>
+        <div class="stat-value success" id="stat-done">Active</div>
+      </div>
+    </div>
+
+    <div class="section-title">⚡ High Priority & Emergent Cases</div>
+    <div class="queue-list" id="list-urgent"></div>
+
+    <div class="section-title" style="margin-top:2.5rem; color:var(--amber-dark);">📋 General Patient Queue</div>
+    <div class="queue-list" id="list-normal"></div>
+  </div>
+
+  <!-- CASE DETAIL PANEL -->
+  <div class="panel" id="panel-case">
+    <div class="case-back" onclick="showPanel('queue')">← Return to Queue</div>
+    <div id="case-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const API = window.location.origin.includes("localhost") || window.location.origin.includes("127.0.0.1")
+    ? window.location.origin
+    : "http://localhost:8000";
+
+  let queueData = [];
+  let autoRefreshTimer = null;
+
+  // ── NAVIGATION ────────────────────────────────
+  function showPanel(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.getElementById('nav-' + name).style.display = '';
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'queue') {
+      document.getElementById('topbar-title').textContent = 'Patient Queue';
+      document.getElementById('nav-case').style.display = 'none';
+    } else {
+      document.getElementById('topbar-title').textContent = 'Clinical Case Dossier';
+    }
+  }
+
+  // ── LOAD QUEUE ────────────────────────────────
+  async function loadQueue() {
+    try {
+      const res = await fetch(`${API}/doctor/queue`);
+      const data = await res.json();
+      queueData = data.queue || [];
+      renderQueue(queueData);
+      updateLastRefresh();
+    } catch (e) {
+      document.getElementById('list-normal').innerHTML =
+        '<div class="empty"><div class="empty-icon">⚠️</div><p>Could not connect to triage server.<br>Ensure backend is running on port 8000.</p></div>';
+    }
+  }
+
+  function renderQueue(queue) {
+    const urgentList = document.getElementById('list-urgent');
+    const normalList = document.getElementById('list-normal');
+    urgentList.innerHTML = '';
+    normalList.innerHTML = '';
+
+    const urgent = queue.filter(q => q.priority_flag);
+    const normal = queue.filter(q => !q.priority_flag);
+
+    document.getElementById('stat-total').textContent = queue.length;
+    document.getElementById('stat-urgent').textContent = urgent.length;
+    document.getElementById('badge-urgent').textContent = urgent.length;
+    document.getElementById('stat-wait').textContent = queue.length > 0 ? `~${queue.length * 8}m` : '0m';
+    document.getElementById('stat-done').textContent = 'Active';
+
+    if (urgent.length === 0) {
+      urgentList.innerHTML = '<div class="empty" style="padding:1.5rem 0"><p style="color:var(--text-light);font-size:0.92rem">No urgent emergency cases flagged at this moment.</p></div>';
+    } else {
+      urgent.forEach(q => urgentList.appendChild(buildQueueCard(q)));
+    }
+
+    if (normal.length === 0) {
+      normalList.innerHTML = '<div class="empty"><div class="empty-icon">🎉</div><p>All patients attended! Queue is currently clear.</p></div>';
+    } else {
+      normal.forEach(q => normalList.appendChild(buildQueueCard(q)));
+    }
+  }
+
+  function buildQueueCard(q) {
+    const card = document.createElement('div');
+    card.className = 'queue-card' + (q.priority_flag ? ' urgent' : '');
+    const arrived = q.arrived_at ? timeSince(new Date(q.arrived_at)) : '?';
+
+    card.innerHTML = `
+      <div class="queue-pos ${q.priority_flag ? 'urgent' : ''}">${q.position || '—'}</div>
+      <div class="queue-info">
+        <div class="queue-name">${q.patient?.name || 'Unknown Patient'}</div>
+        <div class="queue-complaint">${q.case?.chief_complaint || 'No complaint recorded'}</div>
+        <div class="queue-meta">${q.patient?.age ? q.patient.age + ' yrs · ' : ''}${q.patient?.gender || ''} · Arrived ${arrived}</div>
+      </div>
+      <div class="queue-tags">
+        ${q.priority_flag ? '<span class="tag tag-urgent">⚡ Priority Flag</span>' : '<span class="tag tag-waiting">In Queue</span>'}
+        <span class="tag tag-dept">${q.department || 'General Medicine'}</span>
+      </div>
+      <button class="queue-action" onclick="openCase('${q.case?.case_id}', event)">Review Dossier →</button>
+    `;
+    card.onclick = () => openCase(q.case?.case_id);
+    return card;
+  }
+
+  // ── CASE DETAIL ───────────────────────────────
+  async function openCase(caseId, e) {
+    if (e) e.stopPropagation();
+    if (!caseId) return;
+
+    document.getElementById('nav-case').style.display = '';
+    showPanel('case');
+    document.getElementById('case-content').innerHTML = '<div class="spinner"></div>';
+
+    try {
+      const res = await fetch(`${API}/doctor/case/${caseId}`);
+      const c = await res.json();
+      renderCase(c);
+    } catch (err) {
+      document.getElementById('case-content').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Failed to load case details.</p></div>';
+    }
+  }
+
+  function renderCase(c) {
+    const p = c.patient || {};
+    const h = c.medical_history || {};
+    const s = c.symptom_details || {};
+
+    const allergyPills = (h.allergies || []).map(a => `<span class="pill allergy">⚠️ ${a}</span>`).join('') || '<span class="pill">None reported</span>';
+    const medPills = (h.current_medications || []).map(m => `<span class="pill med">💊 ${m}</span>`).join('') || '<span class="pill">None reported</span>';
+    const condPills = (h.chronic_conditions || []).map(cond => `<span class="pill condition">🔸 ${cond}</span>`).join('') || '<span class="pill">None reported</span>';
+
+    const pastVisitsHTML = (c.past_visits || []).length > 0
+      ? c.past_visits.map(v => `
+          <div class="past-visit">
+            <div class="pv-date">${v.date ? new Date(v.date).toLocaleDateString() : '?'}</div>
+            <div>${v.chief_complaint || 'No complaint recorded'}</div>
+          </div>`).join('')
+      : '<p style="color:var(--text-light);font-size:0.9rem">No prior clinic encounters on file</p>';
+
+    const urgencyBanner = c.urgency_flag ? `
+      <div class="urgency-banner">
+        <div class="urgency-banner-icon">🚨</div>
+        <div class="urgency-banner-text">
+          <strong>Priority Triage Flag Detected</strong>
+          <p>${c.urgency_reason || 'Severe symptom pattern detected during AI intake evaluation.'}</p>
+        </div>
+      </div>` : '';
+
+    const summaryRows = Object.entries(s).map(([k, v]) => `
+      <div class="info-row"><span class="lbl">${k}</span><span class="val">${v}</span></div>
+    `).join('') || '<p style="color:var(--text-light);font-size:0.9rem">Structured SBAR summary not available</p>';
+
+    document.getElementById('case-content').innerHTML = `
+      <div class="case-header">
+        <div class="case-patient-avatar">👤</div>
+        <div class="case-patient-info">
+          <h2>${p.name || 'Unknown Patient'}</h2>
+          <p>${p.age ? p.age + ' yrs · ' : ''}${p.gender || ''} · ${p.preferred_language || 'English'} · Contact: ${p.contact || 'None'}</p>
+        </div>
+        <span class="tag ${c.urgency_flag ? 'tag-urgent' : 'tag-waiting'}" style="margin-left:auto">
+          ${c.urgency_flag ? '⚡ High Priority' : '⏳ Standard Queue'}
+        </span>
+      </div>
+
+      ${urgencyBanner}
+
+      <div class="case-grid">
+        <div class="case-block">
+          <h3><span>🩺</span> Chief Complaint</h3>
+          <p style="font-size:1.08rem;font-weight:800;color:var(--text-main)">${c.chief_complaint || '—'}</p>
+        </div>
+        <div class="case-block">
+          <h3><span>📊</span> Case Status</h3>
+          <p style="font-size:1.08rem;font-weight:800;text-transform:capitalize;color:var(--amber-dark)">${c.status || '—'}</p>
+          <p style="color:var(--text-light);font-size:0.82rem;margin-top:4px">${c.timestamp ? new Date(c.timestamp).toLocaleString() : ''}</p>
+        </div>
+        <div class="case-block full">
+          <h3><span>📋</span> AI Intake Summary (SBAR Format)</h3>
+          ${summaryRows}
+        </div>
+        ${(c.attachments && c.attachments.length > 0) ? `
+        <div class="case-block full">
+          <h3><span>📷</span> Attached Medical Images / Reports (${c.attachments.length})</h3>
+          <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:10px;">
+            ${c.attachments.map(imgUrl => `
+              <a href="${imgUrl}" target="_blank" title="Click to view full photo">
+                <img src="${imgUrl}" style="width:130px; height:130px; object-fit:cover; border-radius:14px; border:2px solid var(--amber-primary); box-shadow:0 4px 14px rgba(217,119,6,0.2); transition:all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+              </a>
+            `).join('')}
+          </div>
+        </div>` : ''}
+        <div class="case-block">
+          <h3><span>⚠️</span> Known Allergies</h3>
+          <div class="pill-list">${allergyPills}</div>
+        </div>
+        <div class="case-block">
+          <h3><span>💊</span> Current Medications</h3>
+          <div class="pill-list">${medPills}</div>
+        </div>
+        <div class="case-block full">
+          <h3><span>🔸</span> Chronic Conditions</h3>
+          <div class="pill-list">${condPills}</div>
+        </div>
+        <div class="case-block full">
+          <h3><span>📁</span> Historical Clinic Encounters</h3>
+          ${pastVisitsHTML}
+        </div>
+      </div>
+
+      <div class="case-actions">
+        <button class="btn-review" onclick="markReviewed('${c.case_id}')">✅ Complete Consultation & Discharge</button>
+        <button class="btn-reorder" onclick="reorderPrompt('${c.case_id}')">↕️ Override Queue Position</button>
+      </div>
+    `;
+  }
+
+  // ── ACTIONS ───────────────────────────────────
+  async function markReviewed(caseId) {
+    const notes = prompt('Enter clinician consultation notes or Rx instructions (optional):', '');
+    try {
+      await fetch(`${API}/doctor/case/${caseId}/review`, { 
+        method: 'POST', 
+        headers: {'Content-Type':'application/json'}, 
+        body: JSON.stringify({ notes: notes || null }) 
+      });
+      showPanel('queue');
+      loadQueue();
+    } catch (_) { alert('Failed to update case.'); }
+  }
+
+  function reorderPrompt(caseId) {
+    const pos = prompt('Enter new queue sequence number:');
+    if (!pos || isNaN(pos)) return;
+    fetch(`${API}/doctor/queue/reorder`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ case_id: caseId, new_position: parseInt(pos) })
+    }).then(() => loadQueue());
+  }
+
+  function handleDoctorLogout() {
+    if (confirm('Are you sure you want to log out of the Clinician Dashboard?')) {
+      localStorage.removeItem('sih_staff_token');
+      localStorage.removeItem('sih_staff_user');
+      window.location.href = '/frontend/patient.html';
+    }
+  }
+
+  // ── HELPERS ───────────────────────────────────
+  function timeSince(date) {
+    const s = Math.floor((new Date() - date) / 1000);
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.floor(s/60) + 'm ago';
+    return Math.floor(s/3600) + 'h ago';
+  }
+
+  function updateLastRefresh() {
+    document.getElementById('last-refresh').textContent = 'Synced ' + new Date().toLocaleTimeString();
+  }
+
+  // ── WEBSOCKET LIVE SYNC ──────────────────────
+  function initDoctorWebSocket() {
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsHost = window.location.host || "localhost:8000";
+    const ws = new WebSocket(`${wsProtocol}//${wsHost}/ws/queue`);
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        console.log("Doctor WebSocket live event:", msg);
+        loadQueue();
+      } catch (_) {}
+    };
+    ws.onclose = () => setTimeout(initDoctorWebSocket, 4000);
+  }
+
+  // ── INIT ──────────────────────────────────────
+  loadQueue();
+  initDoctorWebSocket();
+  autoRefreshTimer = setInterval(loadQueue, 30000);
+</script>
+</body>
+</html>
